@@ -1,9 +1,9 @@
 import logging
+import asyncio
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, filters
 
-# Al-bayanat al-khasa bik
-TOKEN = "8773982539:AAFqxba_0u5GMPDNrpRtQBo"
+TOKEN = "8773982539:AAFqxba_0u5GMPDNrpRtQBo7aIjymQhFKLY"
 TARGET_GROUP_ID = "https://t.me/+AZqvBl6W014wZDI1"
 
 logging.basicConfig(
@@ -13,21 +13,27 @@ logging.basicConfig(
 
 async def forward_files(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.message and (update.message.document or update.message.photo or update.message.video):
-        # Irsal al-malaf ila al-majmu'a al-khasa
         await context.bot.send_document(
             chat_id=TARGET_GROUP_ID,
             document=update.message.document.file_id if update.message.document else update.message.photo[-1].file_id
         )
-        await update.message.reply_text("Tam irsal al-malaf binajah!")
+        await update.message.reply_text("File sent successfully!")
 
-if __name__ == '__main__':
+async def run_bot():
     app = ApplicationBuilder().token(TOKEN).build()
     
-    # Ilgha' al-webhook le-man' al-at'al
-    app.bot.delete_webhook()
+    await app.initialize()
+    await app.bot.delete_webhook(drop_pending_updates=True)
     
-    # Mo'alejet al-malafat
     app.add_handler(MessageHandler(filters.ATTACHMENT, forward_files))
     
-    print("Al-bot ya'mal alan...")
-    app.run_polling()
+    print("Bot is starting...")
+    await app.start()
+    await app.updater.start_polling()
+    await asyncio.Event().wait()
+
+if __name__ == '__main__':
+    try:
+        asyncio.run(run_bot())
+    except (KeyboardInterrupt, SystemExit):
+        print("Bot stopped.")
