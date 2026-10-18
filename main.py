@@ -1,35 +1,33 @@
 import logging
 from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
+from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, filters
 
-# Enable logging to monitor bot performance and track errors
+# Al-bayanat al-khasa bik
+TOKEN = "8773982539:AAFqxba_0u5GMPDNrpRtQBo"
+TARGET_GROUP_ID = "https://t.me/+AZqvBl6W014wZDI1"
+
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
-logger = logging.getLogger(__name__)
 
-# Bot initialization token from BotFather
-BOT_TOKEN = "8773982539:AAFqxba_Ou5GMPDNrpRtQBo7aIjymQhFKLY"
-
-async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Handles the /start command and welcomes the user professionally."""
-    user = update.effective_user
-    welcome_message = (
-        f"Hello, {user.first_name}! Welcome to FileCloudStore Bot.\n\n"
-        "Send me your files or links, and I will process and store them for you."
-    )
-    await update.message.reply_text(welcome_message)
-
-def main() -> None:
-    """Start the bot and set up command handlers."""
-    application = ApplicationBuilder().token(BOT_TOKEN).build()
-
-    # Registering handlers
-    application.add_handler(CommandHandler("start", start_command))
-
-    print("Bot is up and running smoothly...")
-    application.run_polling()
+async def forward_files(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.message and (update.message.document or update.message.photo or update.message.video):
+        # Irsal al-malaf ila al-majmu'a al-khasa
+        await context.bot.send_document(
+            chat_id=TARGET_GROUP_ID,
+            document=update.message.document.file_id if update.message.document else update.message.photo[-1].file_id
+        )
+        await update.message.reply_text("Tam irsal al-malaf binajah!")
 
 if __name__ == '__main__':
-    main()
+    app = ApplicationBuilder().token(TOKEN).build()
+    
+    # Ilgha' al-webhook le-man' al-at'al
+    app.bot.delete_webhook()
+    
+    # Mo'alejet al-malafat
+    app.add_handler(MessageHandler(filters.ATTACHMENT, forward_files))
+    
+    print("Al-bot ya'mal alan...")
+    app.run_polling()
