@@ -3,7 +3,7 @@ import asyncio
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, filters
 
-TOKEN = "8773982539:AAFqxba_Ou5GMPDNrpRtQBo7aIjymQhFKLY"
+TOKEN = "8773982539:AAHK0lccK9Z3GGg5yEe_BYpLR0H4p0dNLPI"
 TARGET_GROUP_ID = "https://t.me/+AZqvBl6W014wZDI1"
 
 logging.basicConfig(
